@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Habit } from '../types';
-import { getWeekDaysFromMonday, getDayName } from '../utils/dateHelpers';
+import { getWeekDaysFromMonday, getDayName, getToday } from '../utils/dateHelpers';
 
 interface HabitCardProps {
   habit: Habit;
@@ -21,6 +21,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({
 }) => {
   const weekDays = getWeekDaysFromMonday();
   const weekProgress = weekDays.filter(date => getCheckStatus(date)).length;
+  const today = getToday();
   
   // 진행률 계산: 매일 습관은 7일 기준, 주간 습관은 목표 횟수 기준
   const progressPercentage = habit.frequency === 'weekly' && habit.targetPerWeek
@@ -70,7 +71,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({
         {weekDays.map(date => (
           <div
             key={date}
-            className={`day-box ${getCheckStatus(date) ? 'checked' : ''}`}
+            className={`day-box ${getCheckStatus(date) ? 'checked' : ''} ${date === today ? 'today' : ''}`}
           >
             {getDayName(date)}
           </div>
