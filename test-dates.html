@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>날짜 테스트</title>
+</head>
+<body>
+    <h1>날짜 테스트 페이지</h1>
+    <div id="results"></div>
+    
+    <script>
+        // formatDate 함수 복사
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // getToday 함수
+        function getToday() {
+            return formatDate(new Date());
+        }
+        
+        // getWeekDaysFromMonday 함수
+        function getWeekDaysFromMonday() {
+            const dates = [];
+            const today = new Date();
+            const dayOfWeek = today.getDay();
+            const monday = new Date(today);
+            
+            // 월요일로 이동
+            const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+            monday.setDate(today.getDate() + daysToMonday);
+            
+            // 월요일부터 일요일까지
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                dates.push(formatDate(date));
+            }
+            
+            return dates;
+        }
+        
+        // 테스트 실행
+        const results = document.getElementById('results');
+        const now = new Date();
+        const today = getToday();
+        const weekDays = getWeekDaysFromMonday();
+        const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+        
+        let html = '<h2>현재 시간 정보</h2>';
+        html += `<p>Date 객체: ${now}</p>`;
+        html += `<p>toISOString(): ${now.toISOString()}</p>`;
+        html += `<p>toLocaleDateString('ko-KR'): ${now.toLocaleDateString('ko-KR')}</p>`;
+        html += `<p>getDay() (0=일, 3=수): ${now.getDay()}</p>`;
+        html += `<p>오늘 요일: ${dayNames[now.getDay()]}요일</p>`;
+        
+        html += '<h2>formatDate 결과</h2>';
+        html += `<p>formatDate(now): ${formatDate(now)}</p>`;
+        html += `<p>getToday(): ${today}</p>`;
+        
+        html += '<h2>주간 날짜 (월-일)</h2>';
+        html += '<ul>';
+        weekDays.forEach((date, index) => {
+            const d = new Date(date);
+            const dayName = dayNames[d.getDay()];
+            const isToday = date === today;
+            html += `<li style="${isToday ? 'color: red; font-weight: bold;' : ''}">`;
+            html += `${index}: ${date} (${dayName}요일) ${isToday ? '← 오늘' : ''}`;
+            html += '</li>';
+        });
+        html += '</ul>';
+        
+        html += '<h2>로컬 스토리지 테스트</h2>';
+        html += '<button onclick="testStorage()">테스트 체크인 추가</button>';
+        html += '<div id="storage-result"></div>';
+        
+        results.innerHTML = html;
+        
+        function testStorage() {
+            const testDate = getToday();
+            const key = 'habit_tracker_checkins';
+            let checkIns = JSON.parse(localStorage.getItem(key) || '[]');
+            
+            checkIns.push({
+                id: Date.now().toString(),
+                habitId: 'test-habit',
+                date: testDate,
+                completed: true
+            });
+            
+            localStorage.setItem(key, JSON.stringify(checkIns));
+            
+            const storageResult = document.getElementById('storage-result');
+            storageResult.innerHTML = `<p>체크인 추가됨: ${testDate}</p>`;
+            storageResult.innerHTML += '<p>저장된 체크인들:</p>';
+            storageResult.innerHTML += '<pre>' + JSON.stringify(checkIns, null, 2) + '</pre>';
+        }
+    </script>
+</body>
+</html>

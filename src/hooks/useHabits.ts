@@ -39,6 +39,9 @@ export const useHabits = () => {
   };
 
   const toggleCheckIn = (habitId: string, date: string = getToday()) => {
+    if (import.meta.env.DEV) {
+      console.log('🔍 toggleCheckIn 호출:', { habitId, date, defaultDate: getToday() });
+    }
     storage.toggleCheckIn(habitId, date);
     loadData();
   };

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useHabits } from './hooks/useHabits';
 import { Header } from './components/Header';
 import { HabitCard } from './components/HabitCard';
 import { AddHabitModal } from './components/AddHabitModal';
 import { getToday } from './utils/dateHelpers';
+import { testDates } from './utils/dateTest';
 import './App.css';
 
 function App() {
@@ -21,6 +22,15 @@ function App() {
 
   const today = getToday();
   const stats = getStats();
+
+  // 개발 모드에서 날짜 테스트 실행
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      console.log('🔍 날짜 디버깅 정보');
+      testDates();
+      console.log('오늘 날짜 (getToday):', today);
+    }
+  }, []);
 
   const handleAddHabit = (habitData: {
     name: string;
@@ -66,7 +76,13 @@ function App() {
                 habit={habit}
                 isCheckedToday={isCheckedIn(habit.id, today)}
                 streak={getHabitStreak(habit.id)}
-                onToggle={() => toggleCheckIn(habit.id, today)}
+                onToggle={() => {
+                  const currentDate = getToday();
+                  if (import.meta.env.DEV) {
+                    console.log('🔍 완료 버튼 클릭:', { habitId: habit.id, currentDate });
+                  }
+                  toggleCheckIn(habit.id, currentDate);
+                }}
                 onDelete={() => handleDeleteHabit(habit.id)}
                 getCheckStatus={(date) => isCheckedIn(habit.id, date)}
               />
